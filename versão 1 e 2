@@ -1,0 +1,80 @@
+# [cite: 1] Tabela de preços da cantina
+cardapio = {
+    "Salgado": 6.50,
+    "Refrigerante": 5.00,
+    "Suco Natural": 7.00,
+    "Chocolate": 4.50,
+    "Sanduíche": 8.50,
+    "Café": 3.00
+}
+
+def exibir_cardapio():
+    print("\n--- CARDÁPIO DA CANTINA ---")
+    for item, preco in cardapio.items():
+        print(f"{item}: R$ {preco:.2f}")
+    print("---------------------------\n")
+
+def gerenciar_vendas():
+    # Dicionário para rastrear a quantidade total de cada item vendido no dia
+    vendas_acumuladas = {}
+    faturamento_total = 0.0
+    
+    print("SISTEMA DE CONTROLE DE VENDAS INICIADO")
+    exibir_cardapio()
+    
+    while True:
+        # [cite: 2] Entrada do produto
+        item_escolhido = input("Digite o nome do produto (ou 'relatorio' para encerrar o dia): ").title()
+        
+        if item_escolhido.lower() == 'relatorio':
+            break
+        
+        if item_escolhido in cardapio:
+            try:
+                #  Entrada da quantidade
+                quantidade = int(input(f"Quantas unidades de {item_escolhido}? "))
+                
+                if quantidade > 0:
+                    valor_venda = cardapio[item_escolhido] * quantidade
+                    faturamento_total += valor_venda
+                    
+                    # Atualiza o acumulado para o relatório final
+                    if item_escolhido in vendas_acumuladas:
+                        vendas_acumuladas[item_escolhido] += quantidade
+                    else:
+                        vendas_acumuladas[item_escolhido] = quantidade
+                        
+                    print(f"Registrado: {quantidade}x {item_escolhido} (R$ {valor_venda:.2f})")
+                else:
+                    print("A quantidade deve ser maior que zero.")
+                    
+            except ValueError:
+                # [cite: 4] Tratamento de erro para números inválidos
+                print("Erro: Digite um número inteiro válido para a quantidade.")
+        else:
+            # [cite: 5] Tratamento para item fora do cardápio
+            print("Produto não encontrado no cardápio. Tente novamente.")
+
+    # --- EXIBIÇÃO DO RELATÓRIO FINAL ---
+    print("\n" + "="*30)
+    print("      RELATÓRIO DIÁRIO")
+    print("="*30)
+    
+    if vendas_acumuladas:
+        print(f"FATURAMENTO TOTAL: R$ {faturamento_total:.2f}")
+        
+        # Encontra o item com a maior quantidade vendida
+        mais_vendido = max(vendas_acumuladas, key=vendas_acumuladas.get)
+        qtd_mais_vendido = vendas_acumuladas[mais_vendido]
+        
+        print(f"PRODUTO MAIS VENDIDO: {mais_vendido} ({qtd_mais_vendido} unidades)")
+        print("-" * 30)
+        print("Detalhamento de vendas:")
+        for produto, qtd in vendas_acumuladas.items():
+            print(f"- {produto}: {qtd} unidades")
+    else:
+        print("Nenhuma venda realizada hoje.")
+    print("="*30)
+
+if __name__ == "__main__":
+    gerenciar_vendas()

@@ -1,0 +1,109 @@
+from datetime import datetime
+
+#  Cardápio base
+cardapio = {
+    "Salgado": 6.50,
+    "Refrigerante": 5.00,
+    "Suco Natural": 7.00,
+    "Chocolate": 4.50,
+    "Sanduíche": 8.50,
+    "Café": 3.00
+}
+
+# Novo Requisito: Histórico Global (Lista de dicionários)
+historico_vendas = []
+
+def exibir_cardapio():
+    print("\n" + "="*10 + " CARDÁPIO " + "="*10)
+    for item, preco in cardapio.items():
+        print(f"{item:.<20} R$ {preco:>5.2f}")
+    print("="*30)
+
+def registrar_venda():
+    """Registra vendas e armazena no histórico com data."""
+    exibir_cardapio()
+    while True:
+        item = input("\nProduto (ou 'fim' para voltar): ").title()
+        if item.lower() == 'fim': break
+
+        if item in cardapio:
+            try:
+                qtd = int(input(f"Quantidade de {item}: "))
+                if qtd > 0:
+                    # Registro com Data Automática
+                    data_venda = datetime.now().strftime("%d/%m/%Y")
+                    valor = cardapio[item] * qtd
+
+                    venda = {
+                        "data": data_venda,
+                        "produto": item,
+                        "quantidade": qtd,
+                        "valor_total": valor
+                    }
+                    historico_vendas.append(venda)
+                    print(f"✅ Registrado: {qtd}x {item} (R$ {valor:.2f})")
+                else:
+                    print("❌ Quantidade deve ser positiva.")
+            except ValueError:
+                print("❌ Erro: Digite um número inteiro.")
+        else:
+            print("❌ Produto não encontrado.")
+
+def gerar_ranking():
+    """Calcula o Top 3 e estatísticas gerais."""
+    if not historico_vendas:
+        print("\nNenhuma venda registrada para gerar ranking.")
+        return
+
+    contagem = {}
+    for v in historico_vendas:
+        p = v['produto']
+        contagem[p] = contagem.get(p, 0) + v['quantidade']
+
+    # Ordenar ranking por quantidade
+    ranking = sorted(contagem.items(), key=lambda x: x[1], reverse=True)
+
+    print("\n" + "🏆 RANKING DE PRODUTOS POPULARES")
+    for i, (prod, qtd) in enumerate(ranking[:3], 1):
+        print(f"{i}º - {prod}: {qtd} unidades vendidas")
+
+def relatorio_avancado():
+    """Filtros por data, média de vendas e faturamento total."""
+    if not historico_vendas:
+        print("\nHistórico vazio.")
+        return
+
+    total_geral = sum(v['valor_total'] for v in historico_vendas)
+
+    # Agrupamento por data para média e totais diários
+    vendas_por_dia = {}
+    for v in historico_vendas:
+        dia = v['data']
+        vendas_por_dia[dia] = vendas_por_dia.get(dia, 0) + v['valor_total']
+
+    print("\n" + "📊 RELATÓRIO AVANÇADO")
+    print(f"Faturamento Total Acumulado: R$ {total_geral:.2f}")
+    print(f"Média de faturamento por dia: R$ {total_geral/len(vendas_por_dia):.2f}")
+
+    print("\nDetalhamento por Dia:")
+    for dia, valor in vendas_por_dia.items():
+        print(f"- {dia}: R$ {valor:.2f}")
+
+def menu_principal():
+    while True:
+        print("\n--- SISTEMA DE GESTÃO DE CANTINA 2.0 ---")
+        print("1. Registrar Vendas")
+        print("2. Ver Ranking (Top 3)")
+        print("3. Relatório Avançado e Histórico")
+        print("4. Sair")
+
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == '1': registrar_venda()
+        elif opcao == '2': gerar_ranking()
+        elif opcao == '3': relatorio_avancado()
+        elif opcao == '4': break
+        else: print("Opção inválida.")
+
+if __name__ == "__main__":
+    menu_principal()
